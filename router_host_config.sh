@@ -100,3 +100,19 @@ iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p tcp --dport 21 -j ACCEPT
 iptables -A INPUT -j DROP
 iptables -A FORWARD -j DROP
 
+
+# Suricata
+## Configure Suricata to analyze all traffic received and sent by the router system
+iptables -A INPUT -j NFQUEUE --queue-num 0
+iptables -A OUTPUT -j NFQUEUE --queue-num 0
+
+## Copies the suricata.yaml no suricata.yaml default location
+cp suricata.yaml /etc/suricata/suricata.yaml
+## This is the additional rules file made to ensure XSS, SQLi and port scanning is detected and blocked
+cp local.rules /var/lib/suricata/rules/local.rules
+
+## This downloads the current Emerging Threats Open ruleset into suricata.rules file
+suricata-update
+
+## Run suricata in IDS mode, with NFQUEUE as the capture method, and with the highest level of verbosity ( -vvvv)
+suricata -c /etc/suricata/suricata.yaml -i $INTERNET_IF -vvvv -q 0
