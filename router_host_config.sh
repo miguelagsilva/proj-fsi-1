@@ -88,7 +88,7 @@ iptables -A FORWARD -p tcp --dport 21 -m conntrack --ctstate NEW -j ACCEPT
 
 ## Firewall configuration for communications from the internal network to the outside (using NAT)
 ### Domain name resolutions using DNS
-iptables -t nat -A PREROUTING -p tcp -s $INTERNAL_NET -o $INTERNET_IF -j SNAT --to-source $INTERNET_IP
+iptables -t nat -A POSTROUTING -p tcp -s $INTERNAL_NET -o $INTERNET_IF -j SNAT --to-source $INTERNET_IP
 iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p udp --dport 53 -j ACCEPT
 iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p tcp --dport 53 -j ACCEPT
 ### HTTP, HTTPS and SSH connections
