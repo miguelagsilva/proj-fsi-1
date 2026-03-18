@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INTERNET_IF="enp0s10"
-INTERNET_IP="87.248.214.97"
+INTERNET_IP="193.136.0.0/16"
 INTERNET_EDEN="193.136.212.1"
 INTERNET_DNS2="193.137.16.75"
 
@@ -81,7 +81,7 @@ iptables -A FORWARD -p tcp --dport 21 -m conntrack --ctstate NEW -j ACCEPT
 ### Domain name resolutions using DNS
 iptables -t nat -A PREROUTING -p tcp -s $INTERNAL_NET -o $INTERNET_IF -j SNAT --to-source $INTERNET_IP
 iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p udp --dport 53 -j ACCEPT
-iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p tcp --deport 53 -j ACCEPT
+iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p tcp --dport 53 -j ACCEPT
 ### HTTP, HTTPS and SSH connections
 iptables -A FORWARD -i $INTERNAL_IF -o $EXTERNAL_IF -p tcp -m multiport --dports 80,443,22 -j ACCEPT
 ### FTP connections (in passive and active modes) to external FTP servers
