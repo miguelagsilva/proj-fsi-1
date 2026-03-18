@@ -1,7 +1,8 @@
 #!/bin/bash
 
 INTERNET_IF="enp0s10"
-INTERNET_IP="193.136.0.0/16"
+INTERNET_IP="193.136.0.1"
+INTERNET_NET="193.136.0.0/16"
 INTERNET_EDEN="193.136.212.1"
 INTERNET_DNS2="193.137.16.75"
 
@@ -20,9 +21,17 @@ DMZ_WWW_SERVER="23.214.219.132"
 DMZ_VPN_GW_SERVER="23.214.219.133"
 
 # Interface Setup
-ifconfig enp0s8 192.168.10.254 netmask 255.255.255.0 up
-ifconfig enp0s9 23.214.219.254 netmask 255.255.255.128 up
-ifconfig enp0s10 87.248.214.97 netmask 0.0.0.0 up
+ifconfig $DMZ_IF 192.168.10.254 netmask 255.255.255.0 up
+ifconfig $INTERNAL_IF 23.214.219.254 netmask 255.255.255.128 up
+ifconfig $INTERNET_IF 193.136.0.1 netmask 255.255.0.0 up
+
+# Activates Ip Forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# Iptables Clear
+iptables -F
+iptables -X
+iptables -t nat -F
 
 # Iptables configuration
 ## Firewall configuration to protect the router
@@ -83,9 +92,9 @@ iptables -t nat -A PREROUTING -p tcp -s $INTERNAL_NET -o $INTERNET_IF -j SNAT --
 iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p udp --dport 53 -j ACCEPT
 iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p tcp --dport 53 -j ACCEPT
 ### HTTP, HTTPS and SSH connections
-iptables -A FORWARD -i $INTERNAL_IF -o $EXTERNAL_IF -p tcp -m multiport --dports 80,443,22 -j ACCEPT
+iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p tcp -m multiport --dports 80,443,22 -j ACCEPT
 ### FTP connections (in passive and active modes) to external FTP servers
-iptables -A FORWARD -i $INTERNAL_IF -o $EXTERNAL_IF -p tcp --dport 21 -j ACCEPT
+iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p tcp --dport 21 -j ACCEPT
 
 # Drop all other traffic
 iptables -A INPUT -j DROP
