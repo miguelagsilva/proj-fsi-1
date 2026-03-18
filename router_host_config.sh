@@ -83,7 +83,6 @@ iptables -A FORWARD -p tcp -s $INTERNET_DNS2 -d $INTERNAL_DATASTORE_SERVER --dpo
 modprobe nf_conntrack_ftp
 iptables -t nat -A PREROUTING -p tcp -d $INTERNET_IP --dport 21 -j DNAT --to-destination $INTERNAL_FTP_SERVER
 iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -p tcp --dport 21 -m conntrack --ctstate NEW -j ACCEPT
 
 ## Firewall configuration for communications from the internal network to the outside (using NAT)
