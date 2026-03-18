@@ -115,4 +115,4 @@ cp local.rules /var/lib/suricata/rules/local.rules
 suricata-update
 
 ## Run suricata in IDS mode, with NFQUEUE as the capture method, and with the highest level of verbosity ( -vvvv)
-suricata -c /etc/suricata/suricata.yaml -i $INTERNET_IF -vvvv -q 0
+suricata -c /etc/suricata/suricata.yaml -vvvv -q 0
