@@ -23,7 +23,7 @@ DMZ_VPN_GW_SERVER="23.214.219.133"
 # Interface Setup
 ifconfig $DMZ_IF 192.168.10.254 netmask 255.255.255.0 up
 ifconfig $INTERNAL_IF 23.214.219.254 netmask 255.255.255.128 up
-ifconfig $INTERNET_IF 193.136.0.1 netmask 255.255.0.0 up
+ifconfig $INTERNET_IF 193.136.0.254 netmask 255.255.0.0 up
 
 # Activates Ip Forwarding
 echo 1 > /proc/sys/net/ipv4/ip_forward
