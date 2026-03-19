@@ -27,6 +27,7 @@ ifconfig $INTERNET_IF 193.136.0.254 netmask 255.255.0.0 up
 
 # Activates Ip Forwarding
 echo 1 > /proc/sys/net/ipv4/ip_forward
+sysctl -w net.netfilter.nf_conntrack_helper=1
 
 # Iptables Clear
 iptables -F
@@ -81,6 +82,7 @@ iptables -A FORWARD -p tcp -s $INTERNET_DNS2 -d $INTERNAL_DATASTORE_SERVER --dpo
 
 ###  FTP connections (in passive and active modes) to the ftp server.
 modprobe nf_conntrack_ftp
+modprobe nf_nat_ftp
 iptables -t nat -A PREROUTING -p tcp -d $INTERNET_IP --dport 21 -j DNAT --to-destination $INTERNAL_FTP_SERVER
 iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -p tcp --dport 21 -m conntrack --ctstate NEW -j ACCEPT
