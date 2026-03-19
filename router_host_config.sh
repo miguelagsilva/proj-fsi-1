@@ -33,6 +33,9 @@ sysctl -w net.netfilter.nf_conntrack_helper=1
 iptables -F
 iptables -X
 iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
 
 # Iptables configuration
 ## Firewall configuration to protect the router
@@ -97,15 +100,16 @@ iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p tcp -m multiport --dports
 ### FTP connections (in passive and active modes) to external FTP servers
 iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -p tcp --dport 21 -j ACCEPT
 
+# Suricata
+## Configure Suricata to analyze all traffic received and sent by the router system
+iptables -I INPUT 1 -j NFQUEUE --queue-num 0
+iptables -I OUTPUT 1 -j NFQUEUE --queue-num 0
+iptables -I FORWARD 1 -j NFQUEUE --queue-num 0
+
 # Drop all other traffic
 iptables -A INPUT -j DROP
 iptables -A FORWARD -j DROP
 
-
-# Suricata
-## Configure Suricata to analyze all traffic received and sent by the router system
-iptables -A INPUT -j NFQUEUE --queue-num 0
-iptables -A OUTPUT -j NFQUEUE --queue-num 0
 
 ## Copies the suricata.yaml no suricata.yaml default location
 cp suricata.yaml /etc/suricata/suricata.yaml
