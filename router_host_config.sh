@@ -59,6 +59,8 @@ iptables -A FORWARD -s $DMZ_DNS1_SERVER -p udp --sport domain -j ACCEPT
 ### The dns and dns2 servers should be able to synchronize the contents of DNS zones. 
 iptables -A FORWARD -d $DMZ_DNS1_SERVER -s $DMZ_DNS2_SERVER -p udp --dport domain -j ACCEPT
 iptables -A FORWARD -s $DMZ_DNS1_SERVER -d $DMZ_DNS2_SERVER -p udp --sport domain -j ACCEPT
+iptables -A FORWARD -d $DMZ_DNS1_SERVER -s $DMZ_DNS2_SERVER -p tcp --dport domain -j ACCEPT
+iptables -A FORWARD -s $DMZ_DNS1_SERVER -d $DMZ_DNS2_SERVER -p tcp --dport domain -j ACCEPT
 ### SMTP connections to the smtp server. 
 iptables -A FORWARD -d $DMZ_SMTP_SERVER -p tcp --dport smtp -j ACCEPT
 iptables -A FORWARD -s $DMZ_SMTP_SERVER -p tcp --sport smtp -j ACCEPT
