@@ -30,6 +30,10 @@ modprobe nf_nat_ftp
 echo 1 > /proc/sys/net/ipv4/ip_forward
 sysctl -w net.netfilter.nf_conntrack_helper=1
 
+# Disable firewall
+systemctl stop firewalld
+systemctl disable firewalld
+
 # Iptables Clear
 iptables -F
 iptables -X

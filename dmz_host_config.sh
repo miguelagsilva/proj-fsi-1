@@ -8,3 +8,11 @@ ip route add default via 23.214.219.254
 # Clear iptables
 iptables -F
 iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+
+# Disable firewall
+systemctl stop firewalld
+systemctl disable firewalld
