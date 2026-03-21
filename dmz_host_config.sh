@@ -1,3 +1,4 @@
+#!/bin/bash
 # DMZ
 
 # Set up the network interface with the appropriate IP address and netmask
