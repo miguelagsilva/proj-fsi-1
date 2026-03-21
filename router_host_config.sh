@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INTERNET_IF="enp0s10"
-INTERNET_NET="193.136.0.0/16"
+INTERNET_NET="193.136.0.0/15"
 INTERNET_IP="193.136.0.254" # in the diagram it says 87.248.214.97but it would not make sense mask wise, so we changed it
 INTERNET_EDEN="193.136.212.1"
 INTERNET_DNS2="193.137.16.75"
@@ -24,7 +24,7 @@ DMZ_VPN_GW_SERVER="23.214.219.133"
 # Interface Setup
 ifconfig $DMZ_IF      $DMZ_IP      netmask 255.255.255.128 up
 ifconfig $INTERNAL_IF $INTERNAL_IP netmask 255.255.255.0 up
-ifconfig $INTERNET_IF $INTERNET_IP netmask 255.255.0.0 up
+ifconfig $INTERNET_IF $INTERNET_IP netmask 255.128.0.0 up
 
 # Activates Ip Forwarding & FTP
 modprobe nf_conntrack_ftp
@@ -90,9 +90,15 @@ iptables -A FORWARD -i $DMZ_IF -o $INTERNAL_IF -s $DMZ_VPN_GW_SERVER -m state --
 
 ## Firewall configuration for connections to the external IP address of the firewall (using NAT)
 ###  FTP connections (in passive and active modes) to the ftp server.
+PASV_MIN=30000
+PASV_MAX=30050
+
 iptables -t nat -A PREROUTING -i $INTERNET_IF -d $INTERNET_IP -p tcp --dport 21 -j DNAT --to-destination $INTERNAL_FTP_SERVER
+iptables -t nat -A PREROUTING -i $INTERNET_IF -d $INTERNET_IP -p tcp --dport ${PASV_MIN}:${PASV_MAX} -j DNAT --to-destination $INTERNAL_FTP_SERVER
+
 iptables -A FORWARD -i $INTERNET_IF -o $INTERNAL_IF -d $INTERNAL_FTP_SERVER -p tcp --dport 21 -m state --state NEW -j ACCEPT
 iptables -A FORWARD -i $INTERNET_IF -o $INTERNAL_IF -d $INTERNAL_FTP_SERVER -p tcp --dport 20 -m state --state NEW -j ACCEPT
+iptables -A FORWARD -i $INTERNET_IF -o $INTERNAL_IF -d $INTERNAL_FTP_SERVER -p tcp --dport ${PASV_MIN}:${PASV_MAX} -m state --state NEW -j ACCEPT
 
 ### SSH connections to the datastore server, but only if originated at the eden or dns2 servers.
 iptables -t nat -A PREROUTING -i $INTERNET_IF -s $INTERNET_EDEN -d $INTERNET_IP -p tcp --dport 22 -j DNAT --to-destination $INTERNAL_DATASTORE_SERVER
@@ -102,9 +108,9 @@ iptables -A FORWARD -i $INTERNET_IF -o $INTERNAL_IF -s $INTERNET_EDEN -d $INTERN
 iptables -A FORWARD -i $INTERNET_IF -o $INTERNAL_IF -s $INTERNET_DNS2 -d $INTERNAL_DATASTORE_SERVER -p tcp --dport 22 -m state --state NEW -j ACCEPT
 
 ## Firewall configuration for communications from the internal network to the outside (using NAT)
-iptables -t nat -A POSTROUTING -s $INTERNAL_NET -o $INTERNET_IF -j MASQUERADE
+#iptables -t nat -A POSTROUTING -s $INTERNAL_NET -o $INTERNET_IF -j MASQUERADE
+iptables -t nat -A POSTROUTING -s $INTERNAL_NET -o $INTERNET_IF -j SNAT --to-source $INTERNET_IP
 ### Domain name resolutions using DNS
-iptables -t nat -A POSTROUTING -p tcp -s $INTERNAL_NET -o $INTERNET_IF -j SNAT --to-source $INTERNET_IP
 iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -s $INTERNAL_NET -p udp --dport 53 -m state --state NEW -j ACCEPT
 iptables -A FORWARD -i $INTERNAL_IF -o $INTERNET_IF -s $INTERNAL_NET -p tcp --dport 53 -m state --state NEW -j ACCEPT
 ### HTTP, HTTPS and SSH connections
