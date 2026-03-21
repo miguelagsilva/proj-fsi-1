@@ -131,8 +131,5 @@ cp suricata.yaml /etc/suricata/suricata.yaml
 ## This is the additional rules file made to ensure XSS, SQLi and port scanning is detected and blocked
 cp local.rules /var/lib/suricata/rules/local.rules
 
-## This downloads the current Emerging Threats Open ruleset into suricata.rules file
-suricata-update
-
 ## Run suricata in IDS mode, with NFQUEUE as the capture method, and with the highest level of verbosity ( -vvvv)
 suricata -c /etc/suricata/suricata.yaml -vvvv -q 0
