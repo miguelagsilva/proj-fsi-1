@@ -24,7 +24,7 @@ DMZ_VPN_GW_SERVER="23.214.219.133"
 # Interface Setup
 ifconfig $DMZ_IF      $DMZ_IP      netmask 255.255.255.128 up
 ifconfig $INTERNAL_IF $INTERNAL_IP netmask 255.255.255.0 up
-ifconfig $INTERNET_IF $INTERNET_IP netmask 255.128.0.0 up
+ifconfig $INTERNET_IF $INTERNET_IP netmask 255.254.0.0 up
 
 # Activates Ip Forwarding & FTP
 modprobe nf_conntrack_ftp
